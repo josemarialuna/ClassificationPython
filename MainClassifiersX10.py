@@ -19,8 +19,7 @@ from sklearn.preprocessing import MinMaxScaler
 import os
 
 separator = ','
-brcaFile = 'C:\\datasets\\brca\\brca - copia.csv'
-# brcaFile = 'C:\\datasets\\brca\\test.csv'
+brcaFile = 'data/brca - copia.csv'
 
 print("Loading file...")
 df_main = pd.read_csv(brcaFile, sep=separator, index_col=0)
@@ -38,6 +37,9 @@ print("Scaled!")
 y = df_main.pop('class').values
 
 for i in range(0, 10):
+
+    os.mkdir('./' + str(i))
+
     print("Starting Iteration" + str(i))
     skfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=i)
 
@@ -49,13 +51,12 @@ for i in range(0, 10):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
 
-        print("Saving files" + str(i) + "...")
-
-        os.mkdir('./' + str(i))
-        np.savetxt('./' +str(i) + '/X_train.csv', X_train, delimiter=",")
-        np.savetxt('./' +str(i) + '/X_test.csv', X_test, delimiter=",")
-        np.savetxt('./' +str(i) + '/y_train.csv', y_train, delimiter=",")
-        np.savetxt('./' +str(i) + '/y_test.csv', y_test, delimiter=",")
+        print("Saving files for k-Fold: " + str(i) + "...")
+        np.savetxt('./' + str(i) + '/' + str(idx) + '_X_train.csv', X_train, delimiter=",")
+        np.savetxt('./' + str(i) + '/' + str(idx) + '_X_test.csv', X_test, delimiter=",")
+        np.savetxt('./' + str(i) + '/' + str(idx) + '_y_train.csv', y_train, delimiter=",")
+        np.savetxt('./' + str(i) + '/' + str(idx) + '_y_test.csv', y_test, delimiter=",")
+        print("Saved all files from iteration " + str(i) + "succesfully!")
 
         ##### AUTOENCODER #####
 
@@ -70,7 +71,7 @@ for i in range(0, 10):
                     plt.legend(['train'], loc='upper left')
                     plt.show()
 
-        print("Initializing...")
+        print("Initializing Autoencoder...")
 
         num_instances, num_attr = X_train.shape[0], X_train.shape[1]
 
@@ -100,11 +101,15 @@ for i in range(0, 10):
 
         plot_training_history(history, ["loss"])
 
+        print("Autoencoded done!\n")
+
         X_train_encoded = encoder.predict(X_train)
         X_test_encoded = encoder.predict(X_test)
 
-        np.savetxt('./' + str(i) + '/X_train_encoded.csv', X_train_encoded, delimiter=",")
-        np.savetxt('./' + str(i) + '/X_test_encoded.csv', X_test_encoded, delimiter=",")
+        print("Saving autoencoded files...")
+        np.savetxt('./' + str(i) + '/' + str(idx) + '_X_train_encoded.csv', X_train_encoded, delimiter=",")
+        np.savetxt('./' + str(i) + '/' + str(idx) + '_X_test_encoded.csv', X_test_encoded, delimiter=",")
+        print("Done!\n")
 
         # weights = encoder.get_weights()[0]
         # print(type(weights))
@@ -118,8 +123,7 @@ for i in range(0, 10):
 
         #######################
 
-        print("Saved all files from iteration " + str(i) + "succesfully!")
-
+        print("Initializing Classifiers...")
         classifiers = [
             KNeighborsClassifier(3),
             SVC(kernel="rbf", C=0.025, probability=True),
@@ -141,7 +145,7 @@ for i in range(0, 10):
 
             print('****Results****')
             train_predictions = clf.predict(X_test_encoded)
-            np.savetxt('./' + str(i) + '/y_test_predict.csv', train_predictions, delimiter=",")
+            np.savetxt('./' + str(i) + '/' + str(idx) + '_y_test_predict.csv', train_predictions, delimiter=",")
             acc = accuracy_score(y_test, train_predictions)
             print("Accuracy: {:.4%}".format(acc))
 
