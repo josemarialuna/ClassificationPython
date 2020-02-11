@@ -31,15 +31,15 @@ instances_training = len(df_main)
 scaler = MinMaxScaler()
 # df_main.pop('Time')
 
+y = df_main.pop('class').values
 print("Scaling data...")
 X = scaler.fit_transform(df_main)
 print("Scaled!")
-y = df_main.pop('class').values
 
 for i in range(0, 10):
-
     os.mkdir('./' + str(i))
 
+for i in range(0, 10):
     print("Starting Iteration" + str(i))
     skfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=i)
 

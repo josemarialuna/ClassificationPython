@@ -31,9 +31,8 @@ df_main.pop('c76')
 df_main.pop('c99')
 
 
-
-X = scaler.fit_transform(df_main)
 y = df_main.pop('Class').values
+X = scaler.fit_transform(df_main)
 
 skfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
